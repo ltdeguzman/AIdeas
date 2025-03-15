@@ -152,18 +152,18 @@ if st.session_state['current_problem']:
         st.markdown(f"""
         <div style='display: flex; align-items: flex-start; margin-bottom: 12px;'>
             <div style='margin-right: 10px; font-size: 22px;'>👤</div>
-            <div style='background-color: #F0F0F0; padding: 14px 18px; border-radius: 16px; max-width: 85%; line-height: 1.6;'>
+            <div style='background-color: var(--secondary-background-color); color: var(--text-color); padding: 14px 18px; border-radius: 16px; max-width: 85%; line-height: 1.6;'>
                 {text}
             </div>
         </div>
         """, unsafe_allow_html=True)
-
+    
     def ai_message(text):
         html_text = convert_markdown_to_html(text)
         st.markdown(f"""
         <div style='display: flex; align-items: flex-start; margin-bottom: 20px;'>
             <div style='margin-right: 10px; font-size: 22px;'>🤖</div>
-            <div style='background-color: #E8F5E9; padding: 14px 18px; border-radius: 16px; max-width: 85%; width: 100%; line-height: 1.6;'>
+            <div style='background-color: rgba(58, 95, 11, 0.1); color: var(--text-color); padding: 14px 18px; border-radius: 16px; max-width: 85%; width: 100%; line-height: 1.6;'>
                 {html_text}
             </div>
         </div>
