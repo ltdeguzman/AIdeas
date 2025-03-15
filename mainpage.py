@@ -15,12 +15,12 @@ image_path = "Logo.jpg"  # Direct reference to image stored in the repo
 st.set_page_config(layout="wide", initial_sidebar_state="expanded")
 st.markdown("""
     <style>
-        /* Sidebar color (already set) */
+        /* Sidebar stays untouched */
         [data-testid="stSidebar"] {
             background-color: #3A5F0B !important;
         }
 
-        /* Main content padding and font */
+        /* Main content padding */
         .main {
             padding: 20px 40px;
             font-size: 16px;
@@ -31,18 +31,27 @@ st.markdown("""
             font-size: 16px !important;
         }
 
-        /* ✅ Fix: Remove background color from any markdown text, blockquote, code */
-        .markdown-text-container, .stMarkdown, .stText {
-            background: transparent !important;
+        /* ✅ Only affect chat bubbles, not all markdown */
+        .chat-bubble {
+            background: transparent !important;  /* No background color */
+            color: var(--text-color);
+            border: 1px solid var(--text-color);  /* Optional border for bubble */
+            padding: 14px 18px;
+            border-radius: 16px;
+            max-width: 85%;
+            width: auto;
+            line-height: 1.6;
         }
 
-        .markdown-text-container blockquote, 
-        .markdown-text-container pre, 
-        .markdown-text-container code {
+        /* Remove background inside blockquotes, code, pre inside chat bubbles */
+        .chat-bubble blockquote, 
+        .chat-bubble pre, 
+        .chat-bubble code {
             background: transparent !important;
         }
     </style>
 """, unsafe_allow_html=True)
+
 
 # --- Sidebar Logo ---
 st.sidebar.image("Logo.jpg", use_container_width=True)
@@ -164,39 +173,26 @@ if st.session_state['current_problem']:
     st.markdown(f"**Problem Being Analyzed:** _{st.session_state['current_problem']}_")
 
     # --- Conversation History --- (chat bubble style)
-def user_message(text):
-    st.markdown(f"""
-    <div style='display: flex; justify-content: flex-end; margin-bottom: 12px;'>
-        <div style='background-color: transparent;  /* No background */
-                    color: var(--text-color);  /* Adaptive text color */
-                    border: 1px solid var(--text-color);  /* Subtle border */
-                    padding: 14px 18px; 
-                    border-radius: 16px; 
-                    max-width: 85%; 
-                    line-height: 1.6;'>
-            {text}
+    def user_message(text):
+        st.markdown(f"""
+        <div style='display: flex; justify-content: flex-end; margin-bottom: 12px;'>
+            <div class='chat-bubble'>
+                {text}
+            </div>
         </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-
-def ai_message(text):
-    html_text = convert_markdown_to_html(text)
-    st.markdown(f"""
-    <div style='display: flex; align-items: flex-start; margin-bottom: 20px;'>
-        <div style='margin-right: 10px; font-size: 22px;'>🤖</div>
-        <div style='background-color: transparent;  /* No background */
-                    color: var(--text-color);  /* Adaptive text color */
-                    border: 1px solid var(--text-color);  /* Subtle border */
-                    padding: 14px 18px; 
-                    border-radius: 16px; 
-                    max-width: 85%; 
-                    width: 100%; 
-                    line-height: 1.6;'>
-            {html_text}
+        """, unsafe_allow_html=True)
+    
+    
+    def ai_message(text):
+        html_text = convert_markdown_to_html(text)
+        st.markdown(f"""
+        <div style='display: flex; align-items: flex-start; margin-bottom: 20px;'>
+            <div style='margin-right: 10px; font-size: 22px;'>🤖</div>
+            <div class='chat-bubble'>
+                {html_text}
+            </div>
         </div>
-    </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
 
     # ✅ Render conversation history
