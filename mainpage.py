@@ -11,16 +11,18 @@ openai.api_key = ["OPENAI_API_KEY"]  # Only load the API key securely
 # --- Image path (static file in repo, NOT from secrets) ---
 image_path = "Logo.jpg"  # Direct reference to image stored in the repo
 
-# --- Page config and sidebar color ---
+# --- Page config ---
 st.set_page_config(layout="wide", initial_sidebar_state="expanded")
+
+# ✅ Proper scoped CSS
 st.markdown("""
     <style>
-        /* Sidebar stays untouched */
+        /* ✅ Sidebar color only */
         [data-testid="stSidebar"] {
             background-color: #3A5F0B !important;
         }
 
-        /* Main content padding */
+        /* ✅ Make sure main content is padded and readable */
         .main {
             padding: 20px 40px;
             font-size: 16px;
@@ -31,29 +33,31 @@ st.markdown("""
             font-size: 16px !important;
         }
 
-        /* ✅ Only affect chat bubbles, not all markdown */
+        /* ✅ Chat bubble fix — no background, clean border */
         .chat-bubble {
-            background: transparent !important;  /* No background color */
-            color: var(--text-color);
-            border: 1px solid var(--text-color);  /* Optional border for bubble */
+            background: transparent;  /* Transparent background */
+            color: var(--text-color);  /* Adapts to light/dark mode */
+            border: 1px solid var(--text-color);  /* Optional border */
             padding: 14px 18px;
             border-radius: 16px;
             max-width: 85%;
             width: auto;
             line-height: 1.6;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            margin-bottom: 8px;
         }
 
-        /* Remove background inside blockquotes, code, pre inside chat bubbles */
-        .chat-bubble blockquote, 
-        .chat-bubble pre, 
-        .chat-bubble code {
-            background: transparent !important;
+        /* Ensure chat bubble internal markdown (like bullet points) is clean */
+        .chat-bubble ul, .chat-bubble li, .chat-bubble p {
+            margin: 0;
+            padding: 0;
         }
+
     </style>
 """, unsafe_allow_html=True)
 
-
-# --- Sidebar Logo ---
+# --- Sidebar with logo and title ---
 st.sidebar.image("Logo.jpg", use_container_width=True)
 
 # --- Header and caption ---
@@ -175,24 +179,25 @@ if st.session_state['current_problem']:
     # --- Conversation History --- (chat bubble style)
     def user_message(text):
         st.markdown(f"""
-        <div style='display: flex; justify-content: flex-end; margin-bottom: 12px;'>
+        <div style='display: flex; justify-content: flex-end;'>
             <div class='chat-bubble'>
                 {text}
             </div>
         </div>
         """, unsafe_allow_html=True)
-    
-    
+
+
     def ai_message(text):
         html_text = convert_markdown_to_html(text)
         st.markdown(f"""
-        <div style='display: flex; align-items: flex-start; margin-bottom: 20px;'>
+        <div style='display: flex; align-items: flex-start;'>
             <div style='margin-right: 10px; font-size: 22px;'>🤖</div>
             <div class='chat-bubble'>
                 {html_text}
             </div>
         </div>
         """, unsafe_allow_html=True)
+
 
 
     # ✅ Render conversation history
