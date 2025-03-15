@@ -15,16 +15,31 @@ image_path = "Logo.jpg"  # Direct reference to image stored in the repo
 st.set_page_config(layout="wide", initial_sidebar_state="expanded")
 st.markdown("""
     <style>
+        /* Sidebar color (already set) */
         [data-testid="stSidebar"] {
             background-color: #3A5F0B !important;
         }
+
+        /* Main content padding and font */
         .main {
             padding: 20px 40px;
             font-size: 16px;
             line-height: 1.6;
         }
+
         textarea, input, button {
             font-size: 16px !important;
+        }
+
+        /* ✅ Fix: Remove background color from any markdown text, blockquote, code */
+        .markdown-text-container, .stMarkdown, .stText {
+            background: transparent !important;
+        }
+
+        .markdown-text-container blockquote, 
+        .markdown-text-container pre, 
+        .markdown-text-container code {
+            background: transparent !important;
         }
     </style>
 """, unsafe_allow_html=True)
