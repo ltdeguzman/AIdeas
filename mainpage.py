@@ -5,9 +5,11 @@ import PyPDF2
 import docx
 import re
 
-# --- Load API key & image path ---
-openai.api_key = st.secrets.get("OPENAI_API_KEY", "")
-image_path = st.secrets.get("IMAGE_PATH", "")
+# --- Load API key ---
+openai.api_key = ["OPENAI_API_KEY"]  # Only load the API key securely
+
+# --- Image path (static file in repo, NOT from secrets) ---
+image_path = "Logo.jpg"  # Direct reference to image stored in the repo
 
 # --- Page config and sidebar color ---
 st.set_page_config(layout="wide", initial_sidebar_state="expanded")
@@ -28,8 +30,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- Sidebar Logo ---
-if image_path and os.path.exists(image_path):
-    st.sidebar.image(image_path, use_column_width=True)
+st.sidebar.image("Logo.jpg", use_container_width=True)
 
 # --- Header and caption ---
 st.header("Empower Your Ideas", divider="blue")
@@ -148,26 +149,40 @@ if st.session_state['current_problem']:
     st.markdown(f"**Problem Being Analyzed:** _{st.session_state['current_problem']}_")
 
     # --- Conversation History --- (chat bubble style)
-    def user_message(text):
-        st.markdown(f"""
-        <div style='display: flex; align-items: flex-start; margin-bottom: 12px;'>
-            <div style='margin-right: 10px; font-size: 22px;'>👤</div>
-            <div style='background-color: var(--secondary-background-color); color: var(--text-color); padding: 14px 18px; border-radius: 16px; max-width: 85%; line-height: 1.6;'>
-                {text}
-            </div>
+def user_message(text):
+    st.markdown(f"""
+    <div style='display: flex; justify-content: flex-end; margin-bottom: 12px;'>
+        <div style='background-color: transparent;  /* No background */
+                    color: var(--text-color);  /* Adaptive text color */
+                    border: 1px solid var(--text-color);  /* Subtle border */
+                    padding: 14px 18px; 
+                    border-radius: 16px; 
+                    max-width: 85%; 
+                    line-height: 1.6;'>
+            {text}
         </div>
-        """, unsafe_allow_html=True)
-    
-    def ai_message(text):
-        html_text = convert_markdown_to_html(text)
-        st.markdown(f"""
-        <div style='display: flex; align-items: flex-start; margin-bottom: 20px;'>
-            <div style='margin-right: 10px; font-size: 22px;'>🤖</div>
-            <div style='background-color: rgba(58, 95, 11, 0.1); color: var(--text-color); padding: 14px 18px; border-radius: 16px; max-width: 85%; width: 100%; line-height: 1.6;'>
-                {html_text}
-            </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+def ai_message(text):
+    html_text = convert_markdown_to_html(text)
+    st.markdown(f"""
+    <div style='display: flex; align-items: flex-start; margin-bottom: 20px;'>
+        <div style='margin-right: 10px; font-size: 22px;'>🤖</div>
+        <div style='background-color: transparent;  /* No background */
+                    color: var(--text-color);  /* Adaptive text color */
+                    border: 1px solid var(--text-color);  /* Subtle border */
+                    padding: 14px 18px; 
+                    border-radius: 16px; 
+                    max-width: 85%; 
+                    width: 100%; 
+                    line-height: 1.6;'>
+            {html_text}
         </div>
-        """, unsafe_allow_html=True)
+    </div>
+    """, unsafe_allow_html=True)
+
 
     # ✅ Render conversation history
     for entry in st.session_state['conversation']:
