@@ -53,11 +53,12 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- Sidebar with logo and title ---
-st.sidebar.image("Logo.jpg",  use_container_width=True)
+st.sidebar.image("Logo.jpg", use_container_width=True)
 
 # --- Header and caption ---
 st.header("Empower Your Ideas", divider="blue")
-st.caption("Welcome to Empower Your Ideas! A platform designed to help students analyze real-world city and water challenges, like those faced by the City of San Jose and Valley Water. \
+st.caption("Welcome to Empower Your Ideas! A platform designed to help students analyze real-world city and water challenges, like those faced by the City of San Jose and Valley Water. Can you please provide me with access to this document?
+           
 Whether you're exploring urban planning, environmental issues, or community well-being, \
 this space supports you in brainstorming impactful solutions for the community. Let's create change together!")
 
