@@ -53,7 +53,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- Sidebar with logo and title ---
-st.sidebar.image("Logo.jpg", use_column_width=True)
+st.sidebar.image("Logo.jpg",  use_container_width=True)
 
 # --- Header and caption ---
 st.header("Empower Your Ideas", divider="blue")
