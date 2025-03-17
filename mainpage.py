@@ -1,12 +1,11 @@
-import os
 import openai
 import streamlit as st
 import PyPDF2
 import docx
 import re
 
-# --- Load API key ---
-openai.api_key = ["OPENAI_API_KEY"]  # Only load the API key securely
+# --- Load API key correctly from secrets.toml ---
+openai.api_key = st.secrets["OPENAI_API_KEY"] 
 
 # --- Image path (static file in repo, NOT from secrets) ---
 image_path = "Logo.jpg"  # Direct reference to image stored in the repo
@@ -14,51 +13,47 @@ image_path = "Logo.jpg"  # Direct reference to image stored in the repo
 # --- Page config ---
 st.set_page_config(layout="wide", initial_sidebar_state="expanded")
 
-# ✅ Proper scoped CSS
+# Scoped CSS in Streamlit for Adaptive Chat Bubbles
 st.markdown("""
     <style>
-        /* ✅ Sidebar color only */
-        [data-testid="stSidebar"] {
-            background-color: #3A5F0B !important;
+        .chat-container {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
         }
 
-        /* ✅ Make sure main content is padded and readable */
-        .main {
-            padding: 20px 40px;
-            font-size: 16px;
-            line-height: 1.6;
+        .chat-avatar {
+            margin-right: 8px;
+            font-size: 22px;
+            min-width: 30px;
+            text-align: center;
         }
 
-        textarea, input, button {
-            font-size: 16px !important;
-        }
-
-        /* ✅ Chat bubble fix — no background, clean border */
         .chat-bubble {
-            background: transparent;  /* Transparent background */
-            color: var(--text-color);  /* Adapts to light/dark mode */
-            border: 1px solid var(--text-color);  /* Optional border */
-            padding: 14px 18px;
+            max-width: 500px;
+            width: fit-content;
+            padding: 12px 18px;
             border-radius: 16px;
-            max-width: 85%;
-            width: auto;
-            line-height: 1.6;
-            word-wrap: break-word;
-            white-space: pre-wrap;
-            margin-bottom: 8px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+            line-height: 1.5;
         }
 
-        /* Ensure chat bubble internal markdown (like bullet points) is clean */
-        .chat-bubble ul, .chat-bubble li, .chat-bubble p {
+        .chat-bubble * {
             margin: 0;
             padding: 0;
         }
 
+        .chat-bubble ul {
+            padding-left: 20px;
+            margin: 6px 0;
+        }
     </style>
 """, unsafe_allow_html=True)
 
 # --- Sidebar with logo and title ---
-st.sidebar.image("Logo.jpg", use_container_width=True)
+st.sidebar.image("Logo.jpg", use_column_width=True)
 
 # --- Header and caption ---
 st.header("Empower Your Ideas", divider="blue")
@@ -179,49 +174,58 @@ if st.session_state['current_problem']:
     # --- Conversation History --- (chat bubble style)
     def user_message(text):
         st.markdown(f"""
-        <div style='display: flex; justify-content: flex-end;'>
-            <div class='chat-bubble'>
+        <div class='chat-container'>
+            <div class='chat-avatar'>👤</div>
+            <div style='
+                background-color: var(--background-color);  /* Adapt to theme */
+                color: var(--text-color);  /* Adapt to theme */
+                padding: 12px 18px;
+                border-radius: 16px;
+                border: 1px solid rgba(0,0,0,0.1); /* Optional: subtle border */
+                max-width: 500px;
+                width: fit-content;
+                line-height: 1.5;
+            '>
                 {text}
             </div>
         </div>
         """, unsafe_allow_html=True)
 
-
-    def ai_message(text):
+    def ai_card(text):
         html_text = convert_markdown_to_html(text)
         st.markdown(f"""
-        <div style='display: flex; align-items: flex-start;'>
-            <div style='margin-right: 10px; font-size: 22px;'>🤖</div>
-            <div class='chat-bubble'>
+        <div class='chat-container'>
+            <div class='chat-avatar'>🤖</div>
+            <div style='
+                background-color: var(--background-color);  /* Adapt to theme */
+                color: var(--text-color);  /* Adapt to theme */
+                padding: 16px 20px;
+                border-radius: 16px;
+                border: 1px solid rgba(0,0,0,0.1); /* Optional: subtle border for contrast */
+                max-width: 750px;
+                width: fit-content;
+                line-height: 1.7;
+                font-size: 16px;
+            '>
                 {html_text}
             </div>
         </div>
         """, unsafe_allow_html=True)
 
-
-
-    # ✅ Render conversation history
     for entry in st.session_state['conversation']:
-        user_message(entry['user'])
-        ai_message(entry['ai'])
+        user_message(entry['user'])  # user input remains a bubble
+        ai_card(entry['ai'])         # AI analysis appears in a large readable card
 
     # --- Follow-up section ---
-    with st.form(key="follow_up_form", clear_on_submit=True):  # ✅ Auto-clears after submission
-        follow_up = st.text_input(
-            "💬 Ask a follow-up question:",
-            placeholder="Type your follow-up here..."  # No key needed if you want to auto-clear
-        )
+    with st.form(key="follow_up_form", clear_on_submit=True):
+        follow_up = st.text_input("💬 Ask a follow-up question:", placeholder="Type your follow-up here...")
         submitted = st.form_submit_button("Submit Follow-Up")
 
     if submitted and follow_up:
         # --- Prepare context and get AI response ---
         context = "\n".join([f"User: {c['user']}\nAI: {c['ai']}" for c in st.session_state['conversation']])
         follow_up_response = get_analysis(f"{context}\nUser: {follow_up}\nAI:")
-
-        # --- Append response to conversation ---
         st.session_state['conversation'].append({'user': follow_up, 'ai': follow_up_response})
-
-        # --- Force rerun to update conversation --- (this is optional but useful for real-time update)
         st.rerun()
 
     # --- Start a new problem ---
